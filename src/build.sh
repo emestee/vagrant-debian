@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 argv=($@)
 argc=$#
@@ -16,15 +17,17 @@ case ${argv[0]} in
     ;;
 esac
 
-VERSION="7.1.0"
+VERSION="7.4.0"
 BOX="debian-${VERSION}-${ARCH}"
 
+FOLDER_VBOX_GUEST_TOOLS_ISO="/"
 FOLDER_BASE=$(pwd)
 FOLDER_ISO="${FOLDER_BASE}/iso"
 FOLDER_BUILD="${FOLDER_BASE}/build"
 FOLDER_VBOX="${FOLDER_BUILD}/vbox"
 
-DEBIAN_MIRROR="ftp.acc.umu.se"
+# Select one from https://www.debian.org/CD/http-ftp/#mirrors
+DEBIAN_MIRROR="cdimage.debian.org"
 DEBIAN_URL="http://${DEBIAN_MIRROR}/debian-cd/${VERSION}/${ARCH}/iso-cd"
 DEBIAN_ISO_NAME="debian-${VERSION}-${ARCH}-netinst.iso"
 DEBIAN_ISO_URL="${DEBIAN_URL}/${DEBIAN_ISO_NAME}"
@@ -51,7 +54,8 @@ function wait_for_shutdown {
 }
 
 # Make sure guest additions are available.
-VBOX_GUESTADDITIONS=$(find / -name VBoxGuestAdditions.iso 2>/dev/null)
+info "Searching for VirtualBox guest ISO in ${FOLDER_VBOX_GUEST_TOOLS_ISO}, this may take a while"
+VBOX_GUESTADDITIONS=$(find ${FOLDER_VBOX_GUEST_TOOLS_ISO} -name VBoxGuestAdditions.iso 2>/dev/null)
 if [ "$VBOX_GUESTADDITIONS" == "" ]; then
     abort "VirtualBox Guest Additions not found. Aborting."
 fi
@@ -74,7 +78,7 @@ mkdir -p "${FOLDER_BUILD}/initrd"
 # Download ISO if needed
 if [ ! -f "${DEBIAN_ISO_FILE}" ]; then
     info "Downloading ${DEBIAN_ISO_NAME}..."
-    curl --progress-bar -o "${DEBIAN_ISO_FILE}" -L "${DEBIAN_ISO_URL}"
+    curl --progress-bar -o "${DEBIAN_ISO_FILE}" -L "${DEBIAN_ISO_URL}" || abort "Failed to download ${DEBIAN_ISO_FILE}"
 fi
 
 # Command to get MD5 hash from server

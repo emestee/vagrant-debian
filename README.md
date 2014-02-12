@@ -5,7 +5,7 @@ ISO image:
 
     make [32 | 64]
 
-Dependencies: **VirtualBox, cdrtools, vagrant, fakeroot (Linux only)**
+Dependencies: **VirtualBox, cdrtools, vagrant, fakeroot (Linux only), bsdtar, curl**
 
 **Note!** Mac OS X Lion seems to have a broken libarchive, unable to unpack ISO
 files. We use brew's version:
